@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+    <meta charset="utf-8">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hellicar Studio</title>
+    <link href="https://fonts.googleapis.com/css?family=Karla:700" rel="stylesheet">
+    <link href="./style.min.css" rel="stylesheet" type="text/css" />
+    <!--
+
+        ██ ▄█▀ ██▓▓█████  ██▀███  ▄▄▄      ███▄    █            
+        ██▄█▒ ▓██▒▓█   ▀ ▓██ ▒ ██▒████▄    ██ ▀█   █            
+       ▓███▄░ ▒██▒▒███   ▓██ ░▄█ ▒██  ▀█▄ ▓██  ▀█ ██▒           
+       ▓██ █▄ ░██░▒▓█  ▄ ▒██▀▀█▄ ░██▄▄▄▄██▓██▒  ▐▌██▒           
+       ▒██▒ █▄░██░░▒████▒░██▓ ▒██▒▓█   ▓██▒██░   ▓██░           
+       ▒ ▒▒ ▓▒░▓  ░░ ▒░ ░░ ▒▓ ░▒▓░▒▒   ▓▒█░ ▒░   ▒ ▒            
+       ░ ░▒ ▒░ ▒ ░ ░ ░  ░  ░▒ ░ ▒░ ▒   ▒▒ ░ ░░   ░ ▒░           
+       ░ ░░ ░  ▒ ░   ░     ░░   ░  ░   ▒     ░   ░ ░            
+       ░  ░    ░     ░  ░   ░          ░  ░        ░            
+  ██████ ▄▄▄█████▓ ▄▄▄       ██▀███  ▄▄▄█████▓ █    ██  ██▓███  
+▒██    ▒ ▓  ██▒ ▓▒▒████▄    ▓██ ▒ ██▒▓  ██▒ ▓▒ ██  ▓██▒▓██░  ██▒
+░ ▓██▄   ▒ ▓██░ ▒░▒██  ▀█▄  ▓██ ░▄█ ▒▒ ▓██░ ▒░▓██  ▒██░▓██░ ██▓▒
+  ▒   ██▒░ ▓██▓ ░ ░██▄▄▄▄██ ▒██▀▀█▄  ░ ▓██▓ ░ ▓▓█  ░██░▒██▄█▓▒ ▒
+▒██████▒▒  ▒██▒ ░  ▓█   ▓██▒░██▓ ▒██▒  ▒██▒ ░ ▒▒█████▓ ▒██▒ ░  ░
+▒ ▒▓▒ ▒ ░  ▒ ░░    ▒▒   ▓▒█░░ ▒▓ ░▒▓░  ▒ ░░   ░▒▓▒ ▒ ▒ ▒▓▒░ ░  ░
+░ ░▒  ░ ░    ░      ▒   ▒▒ ░  ░▒ ░ ▒░    ░    ░░▒░ ░ ░ ░▒ ░     
+░  ░  ░    ░        ░   ▒     ░░   ░   ░       ░░░ ░ ░ ░░       
+      ░                 ░  ░   ░                 ░              
+                                                                   
+                                                                                                                    
+                  http://kieranstartup.co.uk
+
+-->
+
+	</head>
+	<body>
+
+    <div class="info-container">
+        <div class="initial-logo">
+            <h1>Hellicar Studio</h1>
+            <h2>A.D.T</h2></div>
+        <div id="email-address">
+            <a href="mailto:hello@hellicarstudio.com" target="_top">hello@hellicarstudio.com</a>
+            <span class="phone-number">+44 (0) 795 847 4493</span>
+        </div>
+    </div>
+
+ 		<canvas id="glscreen" width="100" height="100"></canvas>
+ 	</body>
+
+
+	<!-- Shaders -->
+	<script id="2d-vertex-shader" type="x-shader/x-vertex">
+	//Vertex Shader, just a pass=through, does nothing out of the ordinary
+		attribute vec2 a_position;
+  		void main() {
+    		gl_Position = vec4(a_position, 0, 1);
+  		}
+	</script>
+	
+	<script id="2d-fragment-shader" type="x-shader/x-fragment">
+	//Fragment shader, does all the work!
+		// Here we initialize the float precision (this really should bea  default thing, took me like an hour to figure out)
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+			precision highp float;
+  		#else
+    		precision mediump float;
+  		#endif
+
+  		// Uniform for the resolution of the CANVAS! (not the screen) and normalized mouse position
+  		uniform vec2 u_resolution;
+  		uniform vec2 u_mousePos;
+  		void main() {
+  			//Normalize the frag coord to [0, 1]
+  			vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+
+  			//Save out the mouse position (not really necessary but makes it cleaner imo)
+  			vec2 mouse = u_mousePos.xy;
+
+  			//Two colors you want to use, will make this changeable later
+    		vec4 colTop = vec4(0.200, 0.600, 0.750, 1.0);
+    		vec4 colBot = vec4(0.900, 0.600, 0.600, 1.0);
+
+    		//Calculate the background gradient along y using basic mix function
+    		vec4 background = colTop * uv.y + colBot * (1.0 - uv.y);
+
+    		//Flip mouse.y because it comes in upside-down
+        	mouse.y = 1.0 - mouse.y;
+
+        	//calculate distance to the mouse
+    		float xDiff = mouse.x - uv.x;
+    		float yDiff = mouse.y - uv.y;
+
+    		float dst = sqrt(xDiff * xDiff + yDiff * yDiff);
+
+    		//Find the mouse color by sampling the background gradient
+    		vec4 mouseCol = colTop * mouse.y + colBot * (1.0 - mouse.y);
+    
+			gl_FragColor = background * dst + mouseCol * (1.0 - dst);
+		}
+	
+	</script>
+	<!-- End Shaders -->
+
+ 	<script>
+ 		// grab the canvas and the gl context
+		var canvas = document.getElementById('glscreen');
+		var gl = canvas.getContext('experimental-webgl');
+		var body = document.body;
+		// create the buffer which is two triangles filling the whole screen
+		var buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(
+			gl.ARRAY_BUFFER, 
+			new Float32Array([
+					-1.0, -1.0, 
+					1.0, -1.0, 
+					-1.0,  1.0, 
+					-1.0,  1.0, 
+					1.0, -1.0, 
+					1.0,  1.0]), 
+			gl.STATIC_DRAW
+		);
+
+		//set up the viewport
+		gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+		// save the mouse position with an initial value of 0, 0
+		var mousePos = {
+          		x: 0,
+          		y: 0
+        	};
+
+        //get Mouse Pos function gets called on mouse move events and finds the mouse position
+		function getMousePos(canvas, evt) {
+        	//var rect = canvas.getBoundingClientRect();
+        	return {
+          		x: evt.clientX/* - rect.left*/,
+          		y: evt.clientY/* - rect.top*/
+        	};
+      	}
+
+      	//add the event listener to the body so all elements mouse movement get picked up
+      	body.addEventListener('mousemove', function(evt) {
+        	mousePos = getMousePos(canvas, evt);
+      	}, false);
+
+      	// body.addEventListener('touchstart', function(evt) {
+       //  	mousePos = getMousePos(canvas, evt);
+      	// }, false);
+
+      	//add the event listener to the canvas
+      	// canvas.addEventListener('mousemove', function(evt) {
+       //  	mousePos = getMousePos(canvas, evt);
+      	// }, false);
+
+
+      	//define the shader variables that we'll need
+		var shaderScript;
+		var shaderSource;
+		var vertexShader;
+		var fragmentShader;
+
+		// compile the vertex shader
+		shaderScript = document.getElementById("2d-vertex-shader");
+		shaderSource = shaderScript.text;
+		vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, shaderSource);
+		gl.compileShader(vertexShader);
+		
+		//compile the fragment shader
+		shaderScript   = document.getElementById("2d-fragment-shader");
+		shaderSource   = shaderScript.text;
+		fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, shaderSource);
+		gl.compileShader(fragmentShader);
+		
+		//attach the shader and add the link
+		program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);	
+		gl.useProgram(program);
+
+		//start the render loop
+		render();
+
+		//here's the render loop!
+		function render() {
+			//Request next animation frame
+			window.requestAnimationFrame(render, canvas);
+			//clear the buffer
+			gl.clearColor(1.0, 1.0, 1.0, 1.0);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
+			// set vertex shader attributes
+			positionLocation = gl.getAttribLocation(program, "a_position");
+			gl.enableVertexAttribArray(positionLocation);
+			gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+			//set fragment shader uniforms
+			var resolutionLoc = gl.getUniformLocation(program, "u_resolution");
+			gl.uniform2fv(resolutionLoc, [canvas.width, canvas.height]);
+
+			var mousePosLoc = gl.getUniformLocation(program, "u_mousePos");
+			var mouseX = mousePos.x / window.innerWidth;
+			var mouseY = mousePos.y / window.innerHeight;
+			if(window.innerWidth > window.innerHeight) {
+				mouseX *= window.innerWidth / window.innerHeight;
+			} else {
+				mouseY *= window.innerHeight / window.innerWidth;
+			}
+			gl.uniform2fv(mousePosLoc, [mouseX, mouseY]);
+
+			//draw the triangles with the shaders!
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+	</script>
+</html>
