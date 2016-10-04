@@ -8,6 +8,7 @@
     <title>Hellicar Studio</title>
     <link href="https://fonts.googleapis.com/css?family=Karla:700" rel="stylesheet">
     <link href="./style.min.css" rel="stylesheet" type="text/css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <!--
 
         ██ ▄█▀ ██▓▓█████  ██▀███  ▄▄▄      ███▄    █            
@@ -142,14 +143,23 @@
         	};
       	}
 
+      	function getTouchPos(canvas, evt) {
+      		return {
+      			x: evt.changedTouches[0].pageX,
+      			y: evt.changedTouches[0].pageY
+      		};
+      	}
+
       	//add the event listener to the body so all elements mouse movement get picked up
       	body.addEventListener('mousemove', function(evt) {
         	mousePos = getMousePos(canvas, evt);
       	}, false);
 
-      	// body.addEventListener('touchstart', function(evt) {
-       //  	mousePos = getMousePos(canvas, evt);
-      	// }, false);
+      	body.addEventListener('touchmove', function(evt) {
+        	mousePos = getTouchPos(canvas, evt);
+        	console.log(mousePos);
+      	}, false);
+
 
       	//add the event listener to the canvas
       	// canvas.addEventListener('mousemove', function(evt) {
