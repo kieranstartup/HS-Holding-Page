@@ -71,11 +71,10 @@
   		#endif
 
   		// Uniform for the resolution of the CANVAS! (not the screen) and normalized mouse position
-  		uniform vec2 u_resolution;
   		uniform vec2 u_mousePos;
   		void main() {
   			//Normalize the frag coord to [0, 1]
-  			vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  			vec2 uv = gl_FragCoord.xy / vec2(100.0, 100.0);
 
   			//Save out the mouse position (not really necessary but makes it cleaner imo)
   			vec2 mouse = u_mousePos.xy;
@@ -87,14 +86,11 @@
     		//Calculate the background gradient along y using basic mix function
     		vec4 background = colTop * uv.y + colBot * (1.0 - uv.y);
 
-    		//Flip mouse.y because it comes in upside-down
-        	mouse.y = 1.0 - mouse.y;
-
         	//calculate distance to the mouse
     		float xDiff = mouse.x - uv.x;
     		float yDiff = mouse.y - uv.y;
 
-    		float dst = sqrt(xDiff * xDiff + yDiff * yDiff);
+    		float dst = sqrt(xDiff * xDiff + yDiff * yDiff) * 1.5;
 
     		//Find the mouse color by sampling the background gradient
     		vec4 mouseCol = colTop * mouse.y + colBot * (1.0 - mouse.y);
@@ -157,7 +153,6 @@
 
       	body.addEventListener('touchmove', function(evt) {
         	mousePos = getTouchPos(canvas, evt);
-        	console.log(mousePos);
       	}, false);
 
 
@@ -201,6 +196,7 @@
 		function render() {
 			//Request next animation frame
 			window.requestAnimationFrame(render, canvas);
+
 			//clear the buffer
 			gl.clearColor(1.0, 1.0, 1.0, 1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT);
@@ -210,18 +206,11 @@
 			gl.enableVertexAttribArray(positionLocation);
 			gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-			//set fragment shader uniforms
-			var resolutionLoc = gl.getUniformLocation(program, "u_resolution");
-			gl.uniform2fv(resolutionLoc, [canvas.width, canvas.height]);
-
+			//set fragment shader uniform
 			var mousePosLoc = gl.getUniformLocation(program, "u_mousePos");
 			var mouseX = mousePos.x / window.innerWidth;
 			var mouseY = mousePos.y / window.innerHeight;
-			if(window.innerWidth > window.innerHeight) {
-				mouseX *= window.innerWidth / window.innerHeight;
-			} else {
-				mouseY *= window.innerHeight / window.innerWidth;
-			}
+			mouseY = 1.0 - mouseY; // flip mouse y because it comes in upside down for the shader coordinate space.
 			gl.uniform2fv(mousePosLoc, [mouseX, mouseY]);
 
 			//draw the triangles with the shaders!
